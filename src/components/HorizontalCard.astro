@@ -1,22 +1,28 @@
 ---
-const { title, img, desc, url, badge, tags, target = "_blank" } = Astro.props;
+import * as prismic from '@prismicio/client'
 import { Image } from "astro:assets";
-const tag_url = url.split("/").slice(0, -1).join("/") + "/tag";
+import { formatterImage } from 'utils/formatterImage';
+
+const { data } = Astro.props;
+const imgSrc = formatterImage(data?.image)
+const title = prismic.asText(data.title)
+const description = prismic.asText(data.description)
+const url = data.url.url
 ---
 
 <div
   class="rounded-lg bg-base-100 hover:shadow-xl transition ease-in-out hover:scale-[102%]"
 >
-  <a href={url} target={target}>
+  <a href={url} target="_blank" referrerpolicy="no-referrer">
     <div class="hero-content flex-col md:flex-row">
       {
-        img && (
+        imgSrc && (
           <Image
-            src={img}
+            src={imgSrc}
             width={750}
             height={422}
             format="webp"
-            alt={title}
+            alt={data.image.alt ?? "proyecto"}
             class="max-w-full md:max-w-[13rem] rounded-lg"
           />
         )
@@ -24,19 +30,8 @@ const tag_url = url.split("/").slice(0, -1).join("/") + "/tag";
       <div class="grow w-full">
         <h1 class="text-xl font-bold">
           {title}
-          {badge && <div class="badge badge-secondary mx-2">{badge}</div>}
         </h1>
-        <p class="py-1 text-1xl">{desc}</p>
-        <div class="card-actions justify-end">
-          {
-            tags &&
-              tags.map((tag) => (
-                <a href={`${tag_url}/${tag}`} class="badge badge-outline">
-                  {tag}
-                </a>
-              ))
-          }
-        </div>
+        <p class="py-1 text-1xl">{description}</p>
       </div>
     </div>
   </a>
